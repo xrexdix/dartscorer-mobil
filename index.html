@@ -352,6 +352,148 @@ button,.slot,#board,.seg *{touch-action:manipulation;-webkit-tap-highlight-color
 body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
 /* Webanwendung (ohne lokalen PC-Server): Kamerafunktionen ausblenden */
 body.web #nav [data-tab="cams"], body.web .modebar, body.web #btnCal{display:none!important}
+
+/* ===== Dartscorer Mobil: Handy & Tablet, hoch und quer ===== */
+#board{max-width:none}
+.boardwrap{container-type:size}
+/* Kompakte Spielerkarten (Handy + Tablet hoch) */
+@media (max-width:1100px) and (orientation:portrait), (max-height:560px) and (orientation:landscape){
+  .gleft{display:contents}
+  .meta,.bhints,.modebar{display:none!important}
+  .players{flex-direction:row;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .players::-webkit-scrollbar{display:none}
+  .players .pcard{flex:1 1 128px;min-width:0;overflow:hidden;padding:7px 11px;border-radius:12px}
+  .pcard .name{font-size:15px}
+  .pcard .rem,.pcard.active .rem{font-size:clamp(30px,8vw,44px);margin:2px 0 0}
+  .pcard .sub{font-size:11.5px;gap:8px}
+  .pcard .co{font-size:14px;margin-top:3px}.pcard.active .co:not(:empty){padding:3px 7px}
+  .pcard .pllist{display:none}
+  .pcard .plnow{margin-top:4px}
+  .pcard:not(.active) .sub,.pcard:not(.active) .plnow{display:none}
+  #board{width:min(100cqw,100cqh);height:min(100cqw,100cqh);min-width:0;box-shadow:0 0 0 6px #101828,0 14px 40px rgba(0,0,0,.5)}
+  .boardwrap{min-height:0;min-width:0;width:100%;height:100%}
+  .visit{padding:8px 10px;border-radius:12px}
+  .visit .who{font-size:12px;margin-bottom:5px}
+  .slots{gap:6px}
+  .slot{height:40px;font-size:20px}.slot.sum{font-size:28px}
+  .slot.sum.long{font-size:18px;line-height:40px}.slot.sum.xlong{font-size:13px}
+  .pad{padding:8px;gap:5px;border-radius:12px}
+  .pad button{height:42px;font-size:16px}
+  .quick{padding:6px;gap:4px;border-radius:12px}
+  .quick button{height:32px;font-size:15px}
+  .quick kbd{display:none}
+  .plnow{margin-top:4px;padding:4px 9px;align-items:center}
+  .plnow span{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .plnow b{font-size:22px;white-space:nowrap}
+  .pcard.active .co:not(:empty){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+}
+
+/* Handy hochkant: Spieler oben, darunter wahlweise Board ODER Tastenfeld (Umschalter), Aufnahme unten */
+@media (max-width:600px) and (orientation:portrait){
+  .game{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;
+        grid-template-areas:"players" "main" "quick" "visit";gap:8px;padding:6px 10px 8px;
+        height:calc(100dvh - var(--hh,48px) - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0}
+  .side{display:contents}
+  .players{grid-area:players}.boardwrap{grid-area:main}.pad{grid-area:main}.quick{grid-area:quick}.visit{grid-area:visit}
+  .log{display:none}
+  body:not(.padmode) .pad,body:not(.padmode) .quick{display:none!important}
+  body.padmode .boardwrap{display:none}
+  .pad{grid-auto-rows:minmax(0,1fr);align-content:stretch;min-height:0}
+  .pad button{height:auto;min-height:0;font-size:clamp(16px,4.6vw,20px)}
+  body #inToggle{display:inline-flex}
+}
+
+/* Handy quer: Board links, Spieler + Eingabe rechts */
+@media (max-height:560px) and (orientation:landscape){
+  header.top{padding:4px 12px;flex-wrap:nowrap}
+  header.top h1{font-size:14px}
+  header.top h1 small{display:none}
+  .nav button{padding:4px 10px;font-size:13px}
+  .game{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,46%);grid-template-rows:auto minmax(0,1fr);
+        grid-template-areas:"board players" "board side";gap:6px 14px;padding:4px 14px 6px;
+        height:calc(100dvh - var(--hh,38px) - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0;max-width:none}
+  .players{grid-area:players}.boardwrap{grid-area:board}.side{grid-area:side;display:flex;flex-direction:column;gap:5px;overflow:auto}
+  .log{display:none}
+  .pcard .rem,.pcard.active .rem{font-size:30px}
+  .pcard .sub{display:none}
+  .slot{height:32px;font-size:17px}.slot.sum{font-size:24px}.slot.sum.long{line-height:32px}
+  .visit{padding:6px 8px}.visit .who{display:none}
+  .pad{padding:6px;gap:4px}
+  .pad{grid-template-columns:repeat(10,minmax(0,1fr))}
+  .pad .mod,.pad [data-n="25"],.pad [data-bull],.pad .miss{grid-column:span 2}
+  .pad [data-act="undo"]{grid-column:span 4}.pad [data-act="end"]{grid-column:span 6!important}
+  .pad button{height:clamp(28px,9.6dvh,46px);font-size:15px;padding:0}
+  .pcard .plnow span{display:none}
+  .pcard{display:flex;flex-wrap:wrap;align-items:center;column-gap:10px}
+  .pcard .name{flex-basis:100%}
+  .pcard .plnow{margin:0;flex:1;padding:2px 8px}
+  .pcard .plnow b{font-size:20px}
+  .pad button{min-height:0}
+  .pcard.active .co:not(:empty){display:none}
+}
+
+/* Tablet hochkant: Spieler oben, links Board + Verlauf, rechts Aufnahme + Tastenfeld */
+@media (min-width:601px) and (max-width:1100px) and (orientation:portrait){
+  .game{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);grid-template-rows:auto auto minmax(0,1fr);
+        grid-template-areas:"players players" "board side" "log side";gap:14px;padding:8px 16px 14px;
+        height:calc(100dvh - var(--hh,62px) - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0}
+  .players{grid-area:players}.boardwrap{grid-area:board;container-type:inline-size;height:auto}
+  #board{width:100cqw;height:100cqw}
+  .side{grid-area:side;display:flex;flex-direction:column;gap:10px;overflow:auto}
+  .log{grid-area:log;display:block;max-height:none;min-height:0}
+  .players .pcard{flex:1 1 170px;padding:10px 14px}
+  .pcard .rem,.pcard.active .rem{font-size:52px}
+  .pcard .name{font-size:17px}
+  .pad button{height:50px;font-size:18px}
+  .slot{height:50px;font-size:22px}
+  header.top{flex-wrap:nowrap}
+  #selTempo{display:none!important}
+  #btnStats,#btnQuit{font-size:0;padding:7px 12px;line-height:1}
+  #btnStats::before{content:"📈 Statistik";font-size:14px}
+  #btnQuit::before{content:"✕ Beenden";font-size:14px}
+}
+
+/* Tablet quer: drei Spalten wie am PC, auf Bildschirmhöhe */
+@media (min-width:900px) and (min-height:561px) and (orientation:landscape){
+  .game{grid-template-columns:minmax(220px,280px) minmax(0,1fr) minmax(290px,340px);
+        height:calc(100dvh - var(--hh,62px) - env(safe-area-inset-top) - env(safe-area-inset-bottom));min-height:0;padding:8px 16px 12px;gap:16px}
+  .side{grid-column:auto;display:flex;flex-direction:column;overflow:auto}
+  .gleft{display:flex}
+  #board{width:min(100cqw,100cqh);height:min(100cqw,100cqh);min-width:0}
+  .boardwrap{width:100%;height:100%}
+  .bhints{display:none}
+  .pcard.active .rem{font-size:clamp(56px,6vw,84px)}
+}
+
+/* Kopfzeile auf dem Handy: eine Zeile, Symbole statt Text */
+#inToggle{display:none;align-items:center;gap:5px;background:var(--panel3);color:var(--text);border-radius:8px;padding:3px 10px;font:600 13px var(--cond);letter-spacing:.04em}
+@media (max-width:600px) and (orientation:portrait), (max-height:560px) and (orientation:landscape){
+  header.top{flex-wrap:nowrap;gap:6px;padding:5px 10px}
+  header.top h1{font-size:14px;letter-spacing:.06em;white-space:nowrap}
+  header.top h1 small{display:none}
+  .nav{padding:3px;gap:2px;overflow:visible}
+  .nav button{font-size:0;padding:5px 10px;line-height:1}
+  .nav button::before{font-size:17px}
+  .nav [data-tab="game"]::before{content:"🎯"}
+  .nav [data-tab="hist"]::before{content:"📊"}
+  .nav [data-tab="settings"]::before{content:"⚙️"}
+  .hright{gap:6px;flex-wrap:nowrap}
+  #selTempo{display:none!important}
+  #btnStats,#btnQuit{font-size:0;padding:6px 10px;line-height:1}
+  #btnStats::before{content:"📈";font-size:16px}
+  #btnQuit::before{content:"✕";font-size:16px;font-weight:700}
+}
+.visit .who{gap:8px;align-items:center}
+#visitWho{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#visitHint{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;text-align:right}
+@media (max-width:370px){ header.top h1{font-size:12px;letter-spacing:0} .nav button{padding:5px 7px} #btnStats,#btnQuit{padding:6px 8px} }
+@media (max-width:340px){ header.top h1{display:none} header.top{justify-content:space-between} }
+@media (max-height:560px) and (orientation:landscape){
+  .endbox{padding:14px 20px;max-height:94dvh}
+  .endbox h2{font-size:24px;margin:0 0 6px}
+  .endbox td,.endbox th{padding:5px 8px;font-size:14px}
+}
+
 </style>
 </head>
 <body>
@@ -1375,7 +1517,7 @@ TRAIN.plan = {
 </script>
 <script>
 // ===== Oberfläche =====
-const APP_VERSION = 'Mobil 1.0';   // bei jeder Änderung erhöhen und in „Änderungen.txt“ eintragen
+const APP_VERSION = 'Mobil 1.1';   // bei jeder Änderung erhöhen und in „Änderungen.txt“ eintragen
 const $ = s => document.querySelector(s);
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -3275,6 +3417,19 @@ function exerciseTable(tg, name) {
 
 </script>
 <script>
+(function () { const hd = document.querySelector('header.top');
+  const set = () => document.documentElement.style.setProperty('--hh', (hd ? hd.offsetHeight : 48) + 'px');
+  set(); addEventListener('resize', set); addEventListener('orientationchange', () => setTimeout(set, 250)); })();
+// Handy hochkant: Umschalter Board ↔ Tastenfeld (Wahl wird gemerkt)
+(function () {
+  const who = document.querySelector('.visit .who'); if (!who) return;
+  const b = document.createElement('button'); b.id = 'inToggle'; b.type = 'button';
+  let pm; try { pm = localStorage.getItem('dsm_padmode'); } catch (e) {}
+  const apply = on => { document.body.classList.toggle('padmode', on); b.textContent = on ? '🎯 Board' : '⌨ Tasten'; b.title = on ? 'Zum Board wechseln' : 'Zum Tastenfeld wechseln'; };
+  apply(pm !== '0');
+  b.onclick = () => { const on = !document.body.classList.contains('padmode'); apply(on); try { localStorage.setItem('dsm_padmode', on ? '1' : '0'); } catch (e) {} };
+  who.appendChild(b);
+})();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('sw.js').catch(() => {});
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
 </script>

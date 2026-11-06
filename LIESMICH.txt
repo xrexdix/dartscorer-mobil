@@ -1,4 +1,4 @@
-DARTSCORER MOBIL 1.0  (eingefrorener Stand der PC-Version 1.5.0, 06.11.2026)
+DARTSCORER MOBIL 1.1  (06.11.2026 – Grundlage: PC-Version 1.5.0)
 =============================================================================
 Eigenständige Handy-Version ohne Kameras. Läuft nach dem ersten Öffnen komplett offline.
 Sie ist vom PC-Dartscorer getrennt – Änderungen am PC-Programm wirken sich hier nicht aus

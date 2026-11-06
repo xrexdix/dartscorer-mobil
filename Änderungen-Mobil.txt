@@ -1,0 +1,22 @@
+DARTSCORER MOBIL – ÄNDERUNGEN
+=============================
+Eigenständige Handy-/Tablet-Version, getrennt von der PC-Version mit Kameras.
+
+Mobil 1.1 – 06.11.2026
+----------------------
+- Eigene Darstellung für Handy und Tablet, jeweils hochkant und quer:
+  · Handy hochkant: Spieler oben, darunter wahlweise großes Board ODER Tastenfeld
+    (Umschalter „🎯 Board“ / „⌨ Tasten“ über der Aufnahme, die Wahl wird gemerkt), Aufnahme unten –
+    alles ohne Scrollen.
+  · Handy quer: Board links, Spieler, Aufnahme und Tastenfeld rechts (Tastenfeld 10 Spalten breit).
+  · Tablet hochkant: Spieler oben, links Board und Verlauf, rechts Aufnahme, Tastenfeld und Summen.
+  · Tablet quer: drei Spalten wie am PC, auf Bildschirmhöhe.
+- Kopfzeile auf dem Handy einzeilig mit Symbolen (🎯 Spiel · 📊 Statistik · ⚙️ Einstellungen · 📈 · ✕).
+- Kompakte Spielerkarten, Trainingsplan-Zähler platzsparend, Ergebnisfenster im Querformat kompakter.
+- App darf jetzt gedreht werden (vorher nur hochkant).
+- Getestet: kompletter Trainingsplan auf iPhone und iPad, hoch und quer, mit Antippen von Board und Tasten.
+
+Mobil 1.0 – 06.11.2026
+----------------------
+- Erste Handy-Version (Stand PC-Version 1.5.0): offline als App auf dem Home-Bildschirm,
+  ohne Kamerafunktionen, Spiele und Statistik auf dem Gerät gespeichert.
