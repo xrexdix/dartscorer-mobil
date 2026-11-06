@@ -1,0 +1,24 @@
+DARTSCORER MOBIL 1.0  (eingefrorener Stand der PC-Version 1.5.0, 06.11.2026)
+=============================================================================
+Eigenständige Handy-Version ohne Kameras. Läuft nach dem ersten Öffnen komplett offline.
+Sie ist vom PC-Dartscorer getrennt – Änderungen am PC-Programm wirken sich hier nicht aus
+und umgekehrt. Spiele und Statistik werden auf dem jeweiligen Handy gespeichert.
+
+EINMALIG BEREITSTELLEN (braucht 1× Internet)
+Der Ordner muss einmal auf eine https-Webseite, damit das iPhone ihn als App speichern kann.
+Kostenlos z. B. mit GitHub Pages oder Netlify:
+  Netlify:  app.netlify.com anmelden → „Add new site“ → „Deploy manually“ →
+            den ganzen Ordner „Dartscorer-Mobil“ ins Fenster ziehen → Adresse kopieren.
+  GitHub:   neues öffentliches Repository → alle Dateien hochladen →
+            Settings → Pages → Branch „main“ → Adresse kopieren.
+
+AUF DEM IPHONE
+1. Die Adresse in Safari öffnen (einmal mit Internet).
+2. Teilen-Symbol → „Zum Home-Bildschirm“ → Hinzufügen.
+3. Ab jetzt über das Dartboard-Symbol starten – auch im Flugmodus.
+Android: Adresse in Chrome öffnen → Menü → „App installieren“.
+
+HINWEIS
+- Statistik bleibt auf dem Gerät. Wird die App vom Home-Bildschirm gelöscht, ist auch die
+  Statistik weg (vorher unter Statistik → „Export CSV“ sichern).
+- Weitergeben: einfach die Adresse schicken – jeder installiert sich die App selbst.
