@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Siebenschräm Strichzähler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --board:#1f2b24; --board2:#26342c; --chalk:#f1efe6; --dim:#a9b3a8;
+    --red:#ff8a7a; --gold:#ffd36b; --line:rgba(241,239,230,.18);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--board);color:var(--chalk);font-family:Inter,system-ui,sans-serif}
+  body{padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 90px)}
+  h1{font-family:Caveat,cursive;font-size:34px;margin:4px 0 2px;font-weight:700}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:12px}
+  .stake{position:sticky;top:0;z-index:5;background:var(--board);padding:8px 0 10px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .stakeRow{display:flex;align-items:center;gap:10px}
+  .stakeVal{font-family:Caveat,cursive;font-size:44px;line-height:1;min-width:44px;text-align:center;color:var(--gold)}
+  .stakeLbl{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+  button{font:inherit;color:var(--chalk);background:var(--board2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;min-height:44px}
+  button:active{transform:scale(.97)}
+  button.primary{background:var(--gold);color:#1f2b24;border-color:var(--gold);font-weight:700}
+  button.danger{border-color:rgba(255,138,122,.5);color:var(--red)}
+  button:disabled{opacity:.35}
+  .grow{flex:1}
+  .players{display:grid;gap:10px}
+  .p{background:var(--board2);border:1px solid var(--line);border-radius:16px;padding:12px;transition:opacity .2s}
+  .p.out{opacity:.4}
+  .p.win{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+  .pTop{display:flex;align-items:center;gap:8px}
+  .name{flex:1;background:transparent;border:none;color:var(--chalk);font:600 17px Inter,sans-serif;padding:4px 0;min-width:0}
+  .name:focus{outline:1px dashed var(--line)}
+  .badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.05em}
+  .badge.arm{background:rgba(255,138,122,.18);color:var(--red)}
+  .badge.raus{background:rgba(241,239,230,.1);color:var(--dim)}
+  .badge.sieg{background:var(--gold);color:#1f2b24}
+  .marks{display:flex;align-items:flex-end;gap:2px;height:52px;margin:8px 0 10px}
+  .marks svg{height:48px;width:auto}
+  .count{font-family:Caveat,cursive;font-size:30px;margin-left:auto;color:var(--dim)}
+  .acts{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+  .acts button{font-size:14px;padding:8px 10px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:var(--board);border-top:1px solid var(--line);padding:10px 12px calc(env(safe-area-inset-bottom) + 10px);display:flex;gap:8px;z-index:10}
+  .bar button{flex:1;font-size:14px}
+  .hint{color:var(--dim);font-size:12px;margin-top:6px}
+  dialog{background:var(--board2);color:var(--chalk);border:1px solid var(--line);border-radius:18px;padding:18px;width:min(92vw,420px)}
+  dialog::backdrop{background:rgba(0,0,0,.55)}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 16px}
+  .seg button{min-width:44px}
+  .seg button.on{background:var(--gold);color:#1f2b24;border-color:var(--gold);font-weight:700}
+  .row{display:flex;gap:8px;justify-content:flex-end}
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 80px);transform:translateX(-50%);background:var(--chalk);color:var(--board);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+  .toast.show{opacity:1}
+  .banner{background:var(--gold);color:#1f2b24;border-radius:16px;padding:14px;margin-bottom:12px;font-weight:600}
+  .banner b{font-family:Caveat,cursive;font-size:28px;display:block}
+</style>
+</head>
+<body>
+<h1>Siebenschräm</h1>
+<div class="sub">Jeder startet bei 0. Wer 7 Striche hat, ist raus. Wer den letzten Stich macht, gewinnt die Runde.</div>
+
+<div class="stake">
+  <div class="stakeRow">
+    <div>
+      <div class="stakeLbl">Einsatz</div>
+    </div>
+    <div class="stakeVal" id="stakeVal">1</div>
+    <button id="knock" class="primary grow">Klopfen +1</button>
+    <button id="stakeReset" title="Einsatz auf 1">↺</button>
+  </div>
+  <div class="hint">„+ Einsatz“ gibt so viele Striche, wie gerade gilt. Oder unten einfach den Gewinner wählen – alle anderen bekommen den Einsatz.</div>
+</div>
+
+<div id="banner"></div>
+<div class="players" id="players"></div>
+
+<div class="bar">
+  <button id="undo">↶ Rückgängig</button>
+  <button id="roundDone" class="primary">🏆 Gewinner wählen</button>
+  <button id="newGame">Neues Spiel</button>
+</div>
+
+<dialog id="dlg">
+  <div style="font-weight:700;font-size:18px">Neues Spiel</div>
+  <div class="hint" style="margin-top:4px">Wie viele spielen mit?</div>
+  <div class="seg" id="seg"></div>
+  <div class="row">
+    <button id="dlgCancel">Abbrechen</button>
+    <button id="dlgOk" class="primary">Los geht's</button>
+  </div>
+</dialog>
+
+<dialog id="winDlg">
+  <div style="font-weight:700;font-size:18px">Wer hat die Runde gewonnen?</div>
+  <div class="hint" style="margin-top:4px" id="winHint"></div>
+  <div class="seg" id="winSeg" style="flex-direction:column"></div>
+  <div class="row"><button id="winCancel">Abbrechen</button></div>
+</dialog>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const KEY='siebenschraem-v2';
+  const MAX=7;
+  let state=null, history=[];
+
+  function fresh(n, oldNames){
+    const players=[];
+    for(let i=0;i<n;i++) players.push({name:(oldNames&&oldNames[i])||('Spieler '+(i+1)), marks:0});
+    return {players, stake:1};
+  }
+  function load(){
+    try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.players&&s.players.length) return s; }catch(e){}
+    return fresh(4);
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+  function snap(){ history.push(JSON.stringify(state)); if(history.length>100) history.shift(); }
+
+  function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),1400); }
+
+  // Chalk tally SVG: groups of 5 (4 vertical + diagonal), drawn for remaining marks
+  function chalkStroke(x1,y1,x2,y2,seed){
+    const j=(k)=>((Math.sin(seed*12.9898+k*78.233)*43758.5453)%1)*1.6;
+    const mx=(x1+x2)/2+j(1), my=(y1+y2)/2+j(2);
+    return `<path d="M${x1+j(3)} ${y1} Q${mx} ${my} ${x2+j(4)} ${y2}" stroke="#f1efe6" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".92"/>`;
+  }
+  function tally(n, seed){
+    if(n<=0) return '<span style="color:var(--dim);font-size:13px;align-self:center">noch keine Striche</span>';
+    let out='', groups=Math.ceil(n/5);
+    for(let g=0; g<groups; g++){
+      const inG=Math.min(5, n-g*5);
+      const verts=Math.min(4,inG);
+      let paths='';
+      for(let i=0;i<verts;i++){ const x=6+i*9; paths+=chalkStroke(x,6,x+1,42,seed+g*10+i); }
+      if(inG===5) paths+=chalkStroke(1,36,40,12,seed+g*10+7);
+      const w=verts*9+8;
+      out+=`<svg viewBox="0 0 ${Math.max(w,42)} 48" style="width:${Math.max(w,42)}px">${paths}</svg>`;
+    }
+    return out;
+  }
+
+  function alive(){ return state.players.filter(p=>p.marks<MAX); }
+
+  function render(){
+    document.getElementById('stakeVal').textContent=state.stake;
+    document.getElementById('knock').disabled = state.stake>=MAX;
+    const al=alive();
+    const winner = (state.players.length>1 && al.length===1) ? al[0] : null;
+    document.getElementById('banner').innerHTML = winner
+      ? `<div class="banner"><b>${esc(winner.name)} gewinnt!</b>${MAX-winner.marks} Strich${MAX-winner.marks===1?'':'e'} frei + 7 Bonus = ${MAX-winner.marks+7} Punkte</div>` : '';
+    const wrap=document.getElementById('players');
+    wrap.innerHTML='';
+    state.players.forEach((p,i)=>{
+      const out=p.marks>=MAX, arm=p.marks===MAX-1, win=winner===p;
+      const d=document.createElement('div');
+      d.className='p'+(out?' out':'')+(win?' win':'');
+      d.innerHTML=`
+        <div class="pTop">
+          <input class="name" value="${esc(p.name)}" aria-label="Name">
+          ${win?'<span class="badge sieg">Sieg</span>':out?'<span class="badge raus">raus</span>':arm?'<span class="badge arm">arm · blind 2 klopfen</span>':''}
+        </div>
+        <div class="marks">${tally(p.marks, i*31+1)}<span class="count">${p.marks} / ${MAX}</span></div>
+        <div class="acts">
+          <button data-a="one" ${out?'disabled':''}>+ 1 Strich</button>
+          <button data-a="stake" class="danger" ${out?'disabled':''}>+ Einsatz (${state.stake})</button>
+          <button data-a="minus" title="Strich wegwischen" ${p.marks<=0?'disabled':''}>−</button>
+        </div>`;
+      d.querySelector('.name').addEventListener('change',e=>{ snap(); p.name=e.target.value.trim()||('Spieler '+(i+1)); save(); render(); });
+      d.querySelectorAll('button[data-a]').forEach(b=>b.addEventListener('click',()=>{
+        snap();
+        const a=b.dataset.a;
+        if(a==='one') p.marks=Math.min(MAX,p.marks+1);
+        if(a==='stake') p.marks=Math.min(MAX,p.marks+state.stake);
+        if(a==='minus') p.marks=Math.max(0,p.marks-1);
+        if(p.marks>=MAX && a!=='minus') toast(p.name+' ist raus');
+        save(); render();
+      }));
+      wrap.appendChild(d);
+    });
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  document.getElementById('knock').onclick=()=>{ if(state.stake<MAX){ snap(); state.stake++; save(); render(); toast('Geklopft – Einsatz '+state.stake); } };
+  document.getElementById('stakeReset').onclick=()=>{ snap(); state.stake=1; save(); render(); };
+  const winDlg=document.getElementById('winDlg'), winSeg=document.getElementById('winSeg');
+  document.getElementById('roundDone').onclick=()=>{
+    const al=alive();
+    if(al.length<2){ toast('Spiel ist schon entschieden'); return; }
+    document.getElementById('winHint').textContent='Alle anderen bekommen '+state.stake+' Strich'+(state.stake===1?'':'e')+'. Danach geht der Einsatz zurück auf 1.';
+    winSeg.innerHTML='';
+    al.forEach(w=>{
+      const b=document.createElement('button'); b.style.textAlign='left'; b.textContent=w.name+'  ('+w.marks+' / '+MAX+')';
+      b.onclick=()=>{
+        snap();
+        const st=state.stake, outNow=[];
+        state.players.forEach(p=>{ if(p!==w && p.marks<MAX){ p.marks=Math.min(MAX,p.marks+st); if(p.marks>=MAX) outNow.push(p.name); } });
+        state.stake=1; save(); render(); winDlg.close();
+        toast(outNow.length ? outNow.join(', ')+' raus' : w.name+' gewinnt die Runde');
+      };
+      winSeg.appendChild(b);
+    });
+    try{ winDlg.showModal(); }catch(e){ winDlg.setAttribute('open',''); }
+  };
+  document.getElementById('winCancel').onclick=()=>winDlg.close();
+  document.getElementById('undo').onclick=()=>{ if(!history.length){ toast('Nichts zum Rückgängigmachen'); return; } state=JSON.parse(history.pop()); save(); render(); };
+
+  // New game dialog
+  const dlg=document.getElementById('dlg'), seg=document.getElementById('seg');
+  let pick=4;
+  function drawSeg(){ seg.innerHTML=''; for(let n=2;n<=8;n++){ const b=document.createElement('button'); b.textContent=n; if(n===pick) b.className='on'; b.onclick=()=>{pick=n; drawSeg();}; seg.appendChild(b);} }
+  document.getElementById('newGame').onclick=()=>{ pick=state.players.length; drawSeg(); try{ dlg.showModal(); }catch(e){ dlg.setAttribute('open',''); } };
+  document.getElementById('dlgCancel').onclick=()=>dlg.close();
+  document.getElementById('dlgOk').onclick=()=>{ snap(); state=fresh(pick, state.players.map(p=>p.name)); save(); render(); dlg.close(); toast('Neues Spiel – alle bei 0'); };
+
+  state=load();
+  render();
+})();
+</script>
+</body>
+</html>
