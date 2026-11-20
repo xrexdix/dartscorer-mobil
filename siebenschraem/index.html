@@ -70,7 +70,7 @@
     <button id="knock" class="primary grow">Klopfen +1</button>
     <button id="stakeReset" title="Einsatz auf 1">↺</button>
   </div>
-  <div class="hint">„+ Einsatz“ gibt so viele Striche, wie gerade gilt. Oder unten einfach den Gewinner wählen – alle anderen bekommen den Einsatz.</div>
+  <div class="hint">„Steigt aus“ gibt sofort so viele Striche, wie der Einsatz in dem Moment ist. Oder unten einfach den Gewinner wählen – alle anderen bekommen den Einsatz.</div>
 </div>
 
 <div id="banner"></div>
@@ -154,18 +154,18 @@
     const wrap=document.getElementById('players');
     wrap.innerHTML='';
     state.players.forEach((p,i)=>{
-      const out=p.marks>=MAX, arm=p.marks===MAX-1, win=winner===p;
+      const out=p.marks>=MAX, arm=p.marks===MAX-1, win=winner===p, fold=!!p.folded && !out;
       const d=document.createElement('div');
-      d.className='p'+(out?' out':'')+(win?' win':'');
+      d.className='p'+(out||fold?' out':'')+(win?' win':'');
       d.innerHTML=`
         <div class="pTop">
           <input class="name" value="${esc(p.name)}" aria-label="Name">
-          ${win?'<span class="badge sieg">Sieg</span>':out?'<span class="badge raus">raus</span>':arm?'<span class="badge arm">arm · blind 2 klopfen</span>':''}
+          ${win?'<span class="badge sieg">Sieg</span>':out?'<span class="badge raus">raus</span>':fold?'<span class="badge raus">ausgestiegen</span>':arm?'<span class="badge arm">arm · blind 2 klopfen</span>':''}
         </div>
         <div class="marks">${tally(p.marks, i*31+1)}<span class="count">${p.marks} / ${MAX}</span></div>
         <div class="acts">
-          <button data-a="one" ${out?'disabled':''}>+ 1 Strich</button>
-          <button data-a="stake" class="danger" ${out?'disabled':''}>+ Einsatz (${state.stake})</button>
+          <button data-a="one" ${out||fold?'disabled':''}>+ 1 Strich</button>
+          <button data-a="fold" class="danger" ${out||fold?'disabled':''}>Steigt aus (+${state.stake})</button>
           <button data-a="minus" title="Strich wegwischen" ${p.marks<=0?'disabled':''}>−</button>
         </div>`;
       d.querySelector('.name').addEventListener('change',e=>{ snap(); p.name=e.target.value.trim()||('Spieler '+(i+1)); save(); render(); });
@@ -173,7 +173,7 @@
         snap();
         const a=b.dataset.a;
         if(a==='one') p.marks=Math.min(MAX,p.marks+1);
-        if(a==='stake') p.marks=Math.min(MAX,p.marks+state.stake);
+        if(a==='fold'){ p.marks=Math.min(MAX,p.marks+state.stake); p.folded=true; if(p.marks<MAX) toast(p.name+' steigt aus (+'+state.stake+')'); }
         if(a==='minus') p.marks=Math.max(0,p.marks-1);
         if(p.marks>=MAX && a!=='minus') toast(p.name+' ist raus');
         save(); render();
@@ -184,20 +184,21 @@
   function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   document.getElementById('knock').onclick=()=>{ if(state.stake<MAX){ snap(); state.stake++; save(); render(); toast('Geklopft – Einsatz '+state.stake); } };
-  document.getElementById('stakeReset').onclick=()=>{ snap(); state.stake=1; save(); render(); };
+  document.getElementById('stakeReset').onclick=()=>{ snap(); state.stake=1; state.players.forEach(p=>delete p.folded); save(); render(); toast('Runde zurückgesetzt'); };
   const winDlg=document.getElementById('winDlg'), winSeg=document.getElementById('winSeg');
   document.getElementById('roundDone').onclick=()=>{
-    const al=alive();
-    if(al.length<2){ toast('Spiel ist schon entschieden'); return; }
-    document.getElementById('winHint').textContent='Alle anderen bekommen '+state.stake+' Strich'+(state.stake===1?'':'e')+'. Danach geht der Einsatz zurück auf 1.';
+    const al=alive().filter(p=>!p.folded);
+    if(alive().length<2){ toast('Spiel ist schon entschieden'); return; }
+    if(!al.length){ toast('Alle sind ausgestiegen'); return; }
+    document.getElementById('winHint').textContent='Alle anderen (außer Ausgestiegene) bekommen '+state.stake+' Strich'+(state.stake===1?'':'e')+'. Danach geht der Einsatz zurück auf 1.';
     winSeg.innerHTML='';
     al.forEach(w=>{
       const b=document.createElement('button'); b.style.textAlign='left'; b.textContent=w.name+'  ('+w.marks+' / '+MAX+')';
       b.onclick=()=>{
         snap();
         const st=state.stake, outNow=[];
-        state.players.forEach(p=>{ if(p!==w && p.marks<MAX){ p.marks=Math.min(MAX,p.marks+st); if(p.marks>=MAX) outNow.push(p.name); } });
-        state.stake=1; save(); render(); winDlg.close();
+        state.players.forEach(p=>{ if(p!==w && p.marks<MAX && !p.folded){ p.marks=Math.min(MAX,p.marks+st); if(p.marks>=MAX) outNow.push(p.name); } });
+        state.players.forEach(p=>delete p.folded); state.stake=1; save(); render(); winDlg.close();
         toast(outNow.length ? outNow.join(', ')+' raus' : w.name+' gewinnt die Runde');
       };
       winSeg.appendChild(b);
